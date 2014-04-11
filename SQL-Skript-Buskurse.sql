@@ -1,0 +1,1 @@
+SELECT * FROM gruppe3.buskurse WHERE buskurs_id=1; /*Beispiel 1*/
