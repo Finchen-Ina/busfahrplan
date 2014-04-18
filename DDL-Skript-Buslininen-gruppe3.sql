@@ -1,4 +1,4 @@
-﻿DROP DATABASE IF EXISTS gruppe3;
+DROP DATABASE IF EXISTS gruppe3;
 CREATE DATABASE gruppe3;
 USE gruppe3;
 DROP TABLE IF EXISTS fahrer;
@@ -191,26 +191,30 @@ CREATE VIEW gruppe3.buskurse AS
       ON fahrer_dienstzeiten.tage_id = tage.tage_id
     JOIN bus
       ON buskurs.bus_id = bus.bus_id;
+CREATE VIEW fahrtzeit AS
+    SELECT linienfahrplan_id, fahrzeit, max(haltestellennummer), max(fahrzeit) as maxFahrzeit from linienfahrplan_haltestelle group by linienfahrplan_id;
 CREATE VIEW gruppe3.dienstplan AS
-  SELECT vorname AS Vorname, nachname AS Nachname, busname AS Bus, gruppe AS Wochentage, datum AS Zeitintervall, dienstbeginn AS Dienstbeginn, dienstende AS Dienstende, buskursname AS Buskurs, buslinienname AS Linie, richtung AS Richtung, haltestellennummer AS Haltestellennummer, haltestellennamen AS Haltestelle, CASE richtung WHEN 'H' THEN  ADDTIME(fahrtbeginn, fahrzeit) ELSE ADDTIME(fahrtbeginn, SUBTIME(max(fahrzeit), fahrzeit)) END as Abfahrt
+    SELECT vorname AS Vorname, nachname AS Nachname, busname AS Bus, gruppe AS Wochentage, datum AS Zeitintervall, dienstbeginn AS Dienstbeginn, dienstende AS Dienstende, buskursname AS Buskurs, buslinienname AS Linie, richtung AS Richtung, haltestellennamen AS Haltestelle, CASE richtung WHEN 'H' THEN  ADDTIME(fahrtbeginn, linienfahrplan_haltestelle.fahrzeit) ELSE ADDTIME(fahrtbeginn, SUBTIME(maxFahrzeit, linienfahrplan_haltestelle.fahrzeit)) END as Abfahrt
     FROM fahrer
-	JOIN fahrer_dienstzeiten
-	  ON fahrer.fahrer_id = fahrer_dienstzeiten.fahrer_id
-	JOIN dienstzeiten
-	  ON fahrer_dienstzeiten.dienstzeiten_id = dienstzeiten.dienstzeiten_id
-	LEFT JOIN tage
-	  ON fahrer_dienstzeiten.tage_id = tage.tage_id
-	JOIN buskurs
-	  ON fahrer.fahrer_id = buskurs.fahrer_id
-	JOIN bus
-	  ON buskurs.bus_id = bus.bus_id
-	JOIN fahrt
-	  ON buskurs.buskurs_id = fahrt.buskurs_id
-	JOIN linienfahrplan
-	  ON fahrt.linienfahrplan_id = linienfahrplan.linienfahrplan_id
-	JOIN buslinie
-	  ON linienfahrplan.buslinie_id = buslinie.buslinie_id
-	JOIN linienfahrplan_haltestelle
-	  ON linienfahrplan.linienfahrplan_id = linienfahrplan_haltestelle.linienfahrplan_id
-	JOIN haltestelle
-	  ON linienfahrplan_haltestelle.haltestelle_id = haltestelle.haltestelle_id;
+    LEFT JOIN  fahrer_dienstzeiten
+        ON fahrer.fahrer_id = fahrer_dienstzeiten.fahrer_id
+    LEFT JOIN dienstzeiten
+        ON fahrer_dienstzeiten.dienstzeiten_id = dienstzeiten.dienstzeiten_id
+    LEFT JOIN tage
+        ON fahrer_dienstzeiten.tage_id = tage.tage_id
+    LEFT JOIN buskurs
+        ON fahrer.fahrer_id = buskurs.fahrer_id
+     LEFT JOIN bus
+ON buskurs.bus_id = bus.bus_id
+LEFT JOIN fahrt
+ON buskurs.buskurs_id = fahrt.buskurs_id
+LEFT JOIN linienfahrplan
+ON fahrt.linienfahrplan_id = linienfahrplan.linienfahrplan_id
+LEFT JOIN buslinie
+ON linienfahrplan.buslinie_id = buslinie.buslinie_id
+LEFT JOIN linienfahrplan_haltestelle
+ON linienfahrplan.linienfahrplan_id = linienfahrplan_haltestelle.linienfahrplan_id
+LEFT JOIN haltestelle 
+ON linienfahrplan_haltestelle.haltestelle_id = haltestelle.haltestelle_id
+JOIN fahrtzeit
+ON linienfahrplan.linienfahrplan_id = fahrtzeit.linienfahrplan_id;

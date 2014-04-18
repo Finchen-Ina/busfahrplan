@@ -1,1 +1,1 @@
-SELECT DISTINCT * FROM gruppe3.dienstplan WHERE nachname = "nachname" order by wochentage, buskursname, abfahrtszeit;
+SELECT * FROM gruppe3.dienstplan WHERE Nachname = "Manson" order by Wochentage, Buskurs, Abfahrt;
